@@ -73,6 +73,21 @@ export default function App() {
 
   const [mobileMenuOpen, setMobileMenuOpen] =
     useState(false);
+  const [notificationsOpen, setNotificationsOpen] =
+    useState(false);
+  const [notifications, setNotifications] =
+    useState([]);
+  const [readNotificationIds, setReadNotificationIds] =
+    useState(() => {
+      try {
+        const saved = localStorage.getItem(
+          "carepal_read_notifications"
+        );
+        return saved ? JSON.parse(saved) : [];
+      } catch {
+        return [];
+      }
+    });
 
   async function loadMedicines() {
     try {
@@ -101,6 +116,90 @@ export default function App() {
       loadMedicines();
     }
   }, [role]);
+
+  useEffect(() => {
+    if (!isCaregiverForNotification(role)) return;
+
+    function todayInSriLanka() {
+      const parts = new Intl.DateTimeFormat("en-GB", {
+        timeZone: "Asia/Colombo",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).formatToParts(new Date());
+      const date = Object.fromEntries(
+        parts.map((part) => [part.type, part.value])
+      );
+      return `${date.year}-${date.month}-${date.day}`;
+    }
+
+    async function loadNotifications() {
+      try {
+        const response = await fetch(
+          `${API}/dashboard/notifications?date=${todayInSriLanka()}`
+        );
+        if (!response.ok) return;
+
+        const data = await response.json();
+        const items = Array.isArray(data.notifications)
+          ? data.notifications
+          : [];
+
+        setNotifications(
+          items.map((item) => ({
+            ...item,
+            read: readNotificationIds.includes(item.id),
+          }))
+        );
+      } catch {
+        setNotifications([]);
+      }
+    }
+
+    loadNotifications();
+    const interval = window.setInterval(
+      loadNotifications,
+      60000
+    );
+
+    return () => window.clearInterval(interval);
+  }, [role]);
+
+  function isCaregiverForNotification(userRole) {
+    return userRole === "caregiver";
+  }
+
+  function persistReadNotificationIds(ids) {
+    setReadNotificationIds(ids);
+    localStorage.setItem(
+      "carepal_read_notifications",
+      JSON.stringify(ids)
+    );
+  }
+
+  function markAllNotificationsRead() {
+    const ids = notifications.map(
+      (notification) => notification.id
+    );
+    persistReadNotificationIds(ids);
+    setNotifications((items) =>
+      items.map((item) => ({ ...item, read: true }))
+    );
+  }
+
+  function markNotificationRead(notificationId) {
+    const ids = Array.from(
+      new Set([...readNotificationIds, notificationId])
+    );
+    persistReadNotificationIds(ids);
+    setNotifications((items) =>
+      items.map((item) =>
+        item.id === notificationId
+          ? { ...item, read: true }
+          : item
+      )
+    );
+  }
 
   function selectRole(selectedRole) {
     sessionStorage.setItem(
@@ -223,9 +322,89 @@ export default function App() {
               {isCaregiver ? "Caregiver" : "Family"}
             </div>
 
-            <div className="carepal-notification-icon" aria-label="Notifications">
-              <Bell size={19} />
-            </div>
+            {isCaregiver && (
+              <div className="carepal-notification-container">
+                <button
+                  type="button"
+                  className="carepal-notification-icon"
+                  aria-label="Notifications"
+                  aria-expanded={notificationsOpen}
+                  onClick={() =>
+                    setNotificationsOpen((open) => !open)
+                  }
+                >
+                  <Bell size={19} />
+                  {notifications.filter(
+                    (notification) => !notification.read
+                  ).length > 0 && (
+                    <span className="carepal-notification-badge">
+                      {
+                        notifications.filter(
+                          (notification) => !notification.read
+                        ).length
+                      }
+                    </span>
+                  )}
+                </button>
+
+                {notificationsOpen && (
+                  <div className="carepal-notification-dropdown">
+                    <div className="carepal-notification-heading">
+                      <h3>Notifications</h3>
+                      <button
+                        type="button"
+                        onClick={markAllNotificationsRead}
+                        disabled={
+                          notifications.every(
+                            (notification) =>
+                              notification.read
+                          )
+                        }
+                      >
+                        Mark all read
+                      </button>
+                    </div>
+
+                    <div className="carepal-notification-list">
+                      {notifications.length === 0 ? (
+                        <div className="carepal-notification-empty">
+                          No notifications at this time.
+                        </div>
+                      ) : (
+                        notifications.map((notification) => (
+                          <button
+                            type="button"
+                            className={`carepal-notification-item ${
+                              notification.read ? "read" : "unread"
+                            }`}
+                            key={notification.id}
+                            onClick={() =>
+                              markNotificationRead(
+                                notification.id
+                              )
+                            }
+                          >
+                            <span
+                              className={`carepal-notification-type carepal-notification-${notification.category}`}
+                            >
+                              {notification.category === "stock"
+                                ? "Low Stock"
+                                : notification.category === "missed"
+                                ? "Missed Dose"
+                                : "Upcoming Dose"}
+                            </span>
+                            <strong>
+                              {notification.title}
+                            </strong>
+                            <p>{notification.message}</p>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="carepal-profile">
               <div className="carepal-avatar">

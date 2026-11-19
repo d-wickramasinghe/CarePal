@@ -338,6 +338,97 @@
   border-radius: 50%;
 }
 
+.mm-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.mm-card-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.mm-edit-button {
+  background: #edf8f5;
+  color: #0d8f7e;
+  border: 1px solid #ccece4;
+}
+
+.mm-delete-button {
+  background: #fff1f1;
+  color: #bd4d4d;
+  border: 1px solid #f3d6d6;
+}
+
+.mm-confirm-modal {
+  width: min(430px, 100%);
+  background: white;
+  border-radius: 18px;
+  padding: 28px;
+  text-align: center;
+  box-shadow: 0 25px 70px #102e3d38;
+}
+
+.mm-confirm-icon {
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 14px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff0e7;
+  color: #c76a42;
+}
+
+.mm-confirm-modal h2 {
+  color: #1d4652;
+  font-size: 20px;
+  margin: 0 0 9px;
+}
+
+.mm-confirm-modal p {
+  color: #7d969f;
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.mm-confirm-modal .mm-action-error {
+  color: #c74b4b;
+  margin-top: 12px;
+}
+
+.mm-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.mm-confirm-actions button {
+  padding: 10px 14px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.mm-cancel-button {
+  background: white;
+  color: #587680;
+  border: 1px solid #dde7ea;
+}
+
+.mm-confirm-delete {
+  background: #c74b4b;
+  color: white;
+  border: 1px solid #c74b4b;
+}
+
 /* EMPTY STATE */
 
 .mm-empty {

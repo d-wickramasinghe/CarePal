@@ -1,8 +1,18 @@
 
 import { useState } from "react";
 
-function AddMedicine({ onAdded }) {
-  const [form, setForm] = useState({
+function AddMedicine({ medicine, onAdded }) {
+  const [form, setForm] = useState(() => medicine ? {
+    name: medicine.name || "",
+    strength: medicine.strength || "",
+    dose: medicine.dose || "",
+    times: medicine.times?.length ? [...medicine.times] : ["08:00"],
+    food: medicine.food || "after",
+    startDate: medicine.startDate || "",
+    endDate: medicine.endDate || "",
+    stock: medicine.stock ?? 30,
+    lowStockDays: medicine.lowStockDays ?? 5,
+  } : {
     name: "",
     strength: "",
     dose: "",
@@ -26,9 +36,11 @@ function AddMedicine({ onAdded }) {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/medicines",
+        medicine
+          ? `http://localhost:5000/api/medicines/${medicine._id}`
+          : "http://localhost:5000/api/medicines",
         {
-          method: "POST",
+          method: medicine ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(form),
         }
@@ -40,7 +52,7 @@ function AddMedicine({ onAdded }) {
         throw new Error(data.message || "Failed to save");
       }
 
-      setMessage("Medicine added successfully!");
+      setMessage(medicine ? "Medicine updated successfully!" : "Medicine added successfully!");
       onAdded();
     } catch (error) {
       setMessage(error.message);
@@ -49,7 +61,7 @@ function AddMedicine({ onAdded }) {
 
   return (
     <form onSubmit={submit} className="medicine-form">
-      <h2>Add Medicine</h2>
+      <h2>{medicine ? "Edit Medicine" : "Add Medicine"}</h2>
 
       <label>Medicine Name</label>
       <input required value={form.name}
@@ -114,7 +126,7 @@ function AddMedicine({ onAdded }) {
         onChange={(e) => update("lowStockDays", Number(e.target.value))} />
 
       <button type="submit" className="save-btn">
-        Save Medicine
+        {medicine ? "Update Medicine" : "Save Medicine"}
       </button>
 
       {message && <p role="status">{message}</p>}

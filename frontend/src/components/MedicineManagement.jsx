@@ -12,6 +12,8 @@ import {
   AlertTriangle,
   CheckCircle2,
   X,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 
 import AddMedicine from "./AddMedicine";
@@ -31,7 +33,7 @@ function getStockStatus(medicine) {
   return daysRemaining <= threshold ? "low" : "healthy";
 }
 
-function MedicineCard({ medicine }) {
+function MedicineCard({ medicine, onEdit, onDelete }) {
   const stockStatus = getStockStatus(medicine);
 
   const statusText = {
@@ -102,8 +104,17 @@ function MedicineCard({ medicine }) {
       </div>
 
       <div className="mm-card-footer">
-        <span>Medication Record</span>
-        <span className="mm-card-footer-dot" />
+        <span className="mm-card-actions">
+          <button type="button" className="mm-edit-button" onClick={() => onEdit(medicine)}>
+            <Pencil size={15} />
+            Edit
+          </button>
+          <button type="button" className="mm-delete-button" onClick={() => onDelete(medicine)}>
+            <Trash2 size={15} />
+            Delete
+          </button>
+        </span>
+        <span className="mm-card-footer-dot" aria-hidden="true" />
       </div>
     </article>
   );
@@ -116,6 +127,10 @@ export default function MedicineManagement({
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [showForm, setShowForm] = useState(false);
+  const [editingMedicine, setEditingMedicine] = useState(null);
+  const [deletingMedicine, setDeletingMedicine] = useState(null);
+  const [actionError, setActionError] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const stats = useMemo(() => {
     const lowStock = medicines.filter(
@@ -163,6 +178,39 @@ export default function MedicineManagement({
   async function handleAdded() {
     await onAdded?.();
     setShowForm(false);
+    setEditingMedicine(null);
+  }
+
+  function openEdit(medicine) {
+    setActionError("");
+    setEditingMedicine(medicine);
+    setShowForm(true);
+  }
+
+  async function confirmDelete() {
+    if (!deletingMedicine) return;
+
+    setIsDeleting(true);
+    setActionError("");
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/medicines/${deletingMedicine._id}`,
+        { method: "DELETE" }
+      );
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to delete medicine");
+      }
+
+      await onAdded?.();
+      setDeletingMedicine(null);
+    } catch (error) {
+      setActionError(error.message);
+    } finally {
+      setIsDeleting(false);
+    }
   }
 
   return (
@@ -290,6 +338,11 @@ export default function MedicineManagement({
               <MedicineCard
                 key={medicine._id}
                 medicine={medicine}
+                onEdit={openEdit}
+                onDelete={(selected) => {
+                  setActionError("");
+                  setDeletingMedicine(selected);
+                }}
               />
             ))}
           </div>
@@ -302,6 +355,7 @@ export default function MedicineManagement({
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
               setShowForm(false);
+              setEditingMedicine(null);
             }
           }}
         >
@@ -314,18 +368,23 @@ export default function MedicineManagement({
             <div className="mm-modal-header">
               <div>
                 <span className="mm-eyebrow">
-                  NEW MEDICATION
+                  {editingMedicine ? "EDIT MEDICATION" : "NEW MEDICATION"}
                 </span>
-                <h2 id="mm-modal-title">Add Medicine</h2>
+                <h2 id="mm-modal-title">
+                  {editingMedicine ? "Edit Medicine" : "Add Medicine"}
+                </h2>
                 <p>
-                  Enter the medication and schedule details.
+                  Update or enter the medication and schedule details.
                 </p>
               </div>
 
               <button
                 type="button"
                 className="mm-close-button"
-                onClick={() => setShowForm(false)}
+                onClick={() => {
+                  setShowForm(false);
+                  setEditingMedicine(null);
+                }}
                 aria-label="Close"
               >
                 <X size={20} />
@@ -333,7 +392,58 @@ export default function MedicineManagement({
             </div>
 
             <div className="mm-modal-content">
-              <AddMedicine onAdded={handleAdded} />
+              <AddMedicine
+                medicine={editingMedicine}
+                onAdded={handleAdded}
+              />
+            </div>
+          </section>
+        </div>
+      )}
+
+      {deletingMedicine && (
+        <div
+          className="mm-modal-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !isDeleting) {
+              setDeletingMedicine(null);
+            }
+          }}
+        >
+          <section
+            className="mm-confirm-modal"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="mm-delete-title"
+          >
+            <span className="mm-confirm-icon">
+              <AlertTriangle size={24} />
+            </span>
+            <h2 id="mm-delete-title">Delete {deletingMedicine.name}?</h2>
+            <p>
+              This removes the medicine from schedules and stock.
+              Historical dose records will be preserved for reporting.
+            </p>
+            {actionError && (
+              <p className="mm-action-error" role="alert">{actionError}</p>
+            )}
+            <div className="mm-confirm-actions">
+              <button
+                type="button"
+                className="mm-cancel-button"
+                disabled={isDeleting}
+                onClick={() => setDeletingMedicine(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="mm-confirm-delete"
+                disabled={isDeleting}
+                onClick={confirmDelete}
+              >
+                {isDeleting ? "Deleting..." : "Delete Medicine"}
+              </button>
             </div>
           </section>
         </div>

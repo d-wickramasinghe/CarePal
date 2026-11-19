@@ -223,6 +223,127 @@ body {
   border: 1px solid #e8eef1;
   border-radius: 11px;
   color: #587584;
+  background: white;
+  cursor: pointer;
+  position: relative;
+}
+
+.carepal-notification-container {
+  position: relative;
+}
+
+.carepal-notification-badge {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  min-width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  padding: 0 4px;
+  border: 2px solid white;
+  border-radius: 10px;
+  background: #d96f6f;
+  color: white;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.carepal-notification-dropdown {
+  position: absolute;
+  top: 48px;
+  right: 0;
+  z-index: 3000;
+  width: 360px;
+  max-height: 480px;
+  overflow: hidden;
+  border: 1px solid #e5ecef;
+  border-radius: 15px;
+  background: white;
+  box-shadow: 0 18px 48px #1d45541f;
+}
+
+.carepal-notification-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid #edf2f3;
+}
+
+.carepal-notification-heading h3 {
+  margin: 0;
+  color: #224954;
+  font-size: 15px;
+}
+
+.carepal-notification-heading button {
+  padding: 6px 8px;
+  border: 0;
+  background: transparent;
+  color: #0d927d;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.carepal-notification-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.carepal-notification-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  padding: 14px 18px;
+  border: 0;
+  border-bottom: 1px solid #edf2f3;
+  background: white;
+  text-align: left;
+}
+
+.carepal-notification-item.unread {
+  background: #f5fbf8;
+}
+
+.carepal-notification-item strong {
+  color: #294e58;
+  font-size: 12px;
+}
+
+.carepal-notification-item p {
+  margin: 0;
+  color: #7f99a2;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.carepal-notification-type {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.carepal-notification-stock {
+  color: #d4933d;
+}
+
+.carepal-notification-missed {
+  color: #cf6868;
+}
+
+.carepal-notification-upcoming {
+  color: #188f7d;
+}
+
+.carepal-notification-empty {
+  padding: 30px 18px;
+  color: #91a5ad;
+  text-align: center;
+  font-size: 12px;
 }
 
 .carepal-profile {
@@ -550,7 +671,7 @@ body {
 
   .carepal-page-heading p,
   .carepal-role-pill,
-  .carepal-notification-icon,
+  .carepal-notification-container,
   .carepal-profile-text {
     display: none;
   }

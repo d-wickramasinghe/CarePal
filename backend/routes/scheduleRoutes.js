@@ -7,6 +7,101 @@ const { getDoseQuantity } = require("../utils/stockUtils");
 
 const router = express.Router();
 
+// GET medication schedule for a full month
+router.get("/month/:month", async (req, res) => {
+  try {
+    const { month } = req.params;
+
+    if (!/^\d{4}-\d{2}$/.test(month)) {
+      return res.status(400).json({
+        message: "Invalid month. Use YYYY-MM",
+      });
+    }
+
+    const monthStart = new Date(`${month}-01T00:00:00Z`);
+    if (
+      Number.isNaN(monthStart.getTime()) ||
+      monthStart.toISOString().slice(0, 7) !== month
+    ) {
+      return res.status(400).json({
+        message: "Invalid month",
+      });
+    }
+
+    const nextMonth = new Date(monthStart);
+    nextMonth.setUTCMonth(nextMonth.getUTCMonth() + 1);
+
+    const medicines = await Medicine.find({
+      startDate: { $lte: nextMonth.toISOString().slice(0, 10) },
+      endDate: { $gte: monthStart.toISOString().slice(0, 10) },
+    }).lean();
+
+    const startDate = monthStart.toISOString().slice(0, 10);
+    const endDate = new Date(nextMonth.getTime() - 86400000)
+      .toISOString()
+      .slice(0, 10);
+
+    const logs = await DoseLog.find({
+      date: { $gte: startDate, $lte: endDate },
+    }).lean();
+
+    const logMap = new Map(
+      logs.map((log) => [
+        `${log.medicineId}-${log.date}-${log.time}`,
+        log,
+      ])
+    );
+
+    const dates = [];
+
+    for (
+      let date = new Date(monthStart);
+      date < nextMonth;
+      date.setUTCDate(date.getUTCDate() + 1)
+    ) {
+      const dateString = date.toISOString().slice(0, 10);
+      const doses = [];
+
+      for (const medicine of medicines) {
+        if (
+          medicine.startDate <= dateString &&
+          medicine.endDate >= dateString
+        ) {
+          for (const time of medicine.times) {
+            const log = logMap.get(
+              `${medicine._id}-${dateString}-${time}`
+            );
+
+            doses.push({
+              medicineId: medicine._id,
+              medicineName: medicine.name,
+              name: medicine.name,
+              strength: medicine.strength,
+              dose: medicine.dose,
+              time,
+              date: dateString,
+              status: log ? log.status : "pending",
+              skipReason: log ? log.skipReason : "",
+            });
+          }
+        }
+      }
+
+      doses.sort((a, b) => a.time.localeCompare(b.time));
+      dates.push({ date: dateString, doses });
+    }
+
+    res.json({
+      month,
+      days: dates,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to load monthly schedule",
+    });
+  }
+});
+
 // GET daily medicine schedule
 router.get("/:date", async (req, res) => {
   try {

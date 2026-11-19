@@ -68,20 +68,21 @@ function normalizeReport(data) {
   const summary = data?.summary || {};
 
   const given = safeCount(
-    summary.given ?? summary.givenCount
+    summary.given ?? summary.totalGiven ?? summary.givenCount
   );
 
   const skipped = safeCount(
-    summary.skipped ?? summary.skippedCount
+    summary.skipped ?? summary.totalSkipped ?? summary.skippedCount
   );
 
   const pending = safeCount(
-    summary.pending ?? summary.pendingCount
+    summary.pending ?? summary.totalPending ?? summary.pendingCount
   );
 
   const dailySource =
     data?.dailyBreakdown ||
     data?.daily ||
+    data?.dailyStats ||
     data?.days ||
     [];
 
@@ -199,23 +200,46 @@ export default function AdherenceReportsProfessional() {
     : 0;
 
   function exportCSV() {
-    if (!rawReport || report.daily.length === 0) {
+    if (!rawReport) {
       return;
     }
 
-    const rows = [
-      ["Date", "Given", "Skipped", "Pending", "Adherence %"],
-      ...report.daily.map((item) => [
-        item.date,
-        item.given,
-        item.skipped,
-        item.pending,
-        calculateRate(item.given, item.skipped) ?? "N/A",
-      ]),
-    ];
+    const doseDetails = Array.isArray(rawReport.doseDetails)
+      ? rawReport.doseDetails
+      : [];
+
+    const escapeCSV = (value) => {
+      const text = String(value ?? "");
+      return /[",\r\n]/.test(text)
+        ? `"${text.replace(/"/g, '""')}"`
+        : text;
+    };
+
+    const rows = doseDetails.length > 0
+      ? [
+          ["Date", "Medicine Name", "Strength", "Scheduled Time", "Status", "Skip Reason"],
+          ...doseDetails.map((item) => [
+            item.date,
+            item.medicineName,
+            item.strength,
+            item.time,
+            item.status,
+            item.skipReason || "",
+          ]),
+        ]
+      : [
+          ["Date", "Given", "Skipped", "Pending", "Adherence %"],
+          ...report.daily.map((item) => [
+            item.date,
+            item.given,
+            item.skipped,
+            item.pending,
+            calculateRate(item.given, item.skipped) ?? "N/A",
+          ]),
+        ];
 
     const csv = rows
-      .map((row) => row.join(","))
+      .map((row) => row.map(escapeCSV).join(","))
       .join("\r\n");
 
     const blob = new Blob([csv], {
@@ -324,8 +348,7 @@ export default function AdherenceReportsProfessional() {
             onClick={exportCSV}
             disabled={
               loading ||
-              !rawReport ||
-              report.daily.length === 0
+              !rawReport
             }
           >
             <Download size={16} />

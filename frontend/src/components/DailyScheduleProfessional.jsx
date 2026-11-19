@@ -78,6 +78,12 @@ export default function DailyScheduleProfessional() {
   const [selectedDate, setSelectedDate] = useState(
     todayInSriLanka
   );
+  const [viewMode, setViewMode] = useState("list");
+  const [calendarMonth, setCalendarMonth] = useState(() =>
+    todayInSriLanka().slice(0, 7)
+  );
+  const [calendarDays, setCalendarDays] = useState([]);
+  const [calendarLoading, setCalendarLoading] = useState(false);
 
   const [schedule, setSchedule] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -119,6 +125,47 @@ export default function DailyScheduleProfessional() {
     loadSchedule();
     setSuccess("");
   }, [loadSchedule]);
+
+  useEffect(() => {
+    if (viewMode !== "calendar") return;
+
+    let active = true;
+
+    async function loadMonth() {
+      setCalendarLoading(true);
+
+      try {
+        const response = await fetch(
+          `${API}/schedule/month/${calendarMonth}`
+        );
+
+        if (!response.ok) {
+          throw new Error("Unable to load calendar schedule.");
+        }
+
+        const result = await response.json();
+
+        if (active) {
+          setCalendarDays(
+            Array.isArray(result.days) ? result.days : []
+          );
+        }
+      } catch (err) {
+        if (active) {
+          setError(err.message);
+          setCalendarDays([]);
+        }
+      } finally {
+        if (active) setCalendarLoading(false);
+      }
+    }
+
+    loadMonth();
+
+    return () => {
+      active = false;
+    };
+  }, [viewMode, calendarMonth]);
 
   const sortedSchedule = useMemo(
     () =>
@@ -234,6 +281,55 @@ export default function DailyScheduleProfessional() {
     updateDose(skipDose, "skipped", skipReason.trim());
   }
 
+  function changeCalendarMonth(offset) {
+    const date = new Date(`${calendarMonth}-01T12:00:00Z`);
+    date.setUTCMonth(date.getUTCMonth() + offset);
+    setCalendarMonth(date.toISOString().slice(0, 7));
+  }
+
+  function formatCalendarMonth() {
+    return new Date(`${calendarMonth}-01T12:00:00Z`)
+      .toLocaleDateString("en-US", {
+        timeZone: "UTC",
+        month: "long",
+        year: "numeric",
+      });
+  }
+
+  const calendarMap = useMemo(
+    () => new Map(
+      calendarDays.map((day) => [day.date, day.doses || []])
+    ),
+    [calendarDays]
+  );
+
+  const calendarGrid = useMemo(() => {
+    const first = new Date(`${calendarMonth}-01T12:00:00Z`);
+    const firstWeekday = first.getUTCDay();
+    const year = first.getUTCFullYear();
+    const month = first.getUTCMonth();
+    const daysInMonth = new Date(
+      Date.UTC(year, month + 1, 0)
+    ).getUTCDate();
+
+    const cells = [];
+
+    for (let index = 0; index < firstWeekday; index++) {
+      cells.push(null);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(Date.UTC(year, month, day));
+      cells.push(date.toISOString().slice(0, 10));
+    }
+
+    while (cells.length % 7 !== 0) cells.push(null);
+    return cells;
+  }, [calendarMonth]);
+
+  const selectedCalendarDoses =
+    calendarMap.get(selectedDate) || [];
+
   return (
     <div className="ds-page">
       <section className="ds-hero">
@@ -259,6 +355,25 @@ export default function DailyScheduleProfessional() {
           src="../../public/schedule-illustration.png"
           alt="Medication schedule illustration"
         />
+      </section>
+
+      <section className="ds-view-toolbar">
+        <div className="ds-view-toggle" aria-label="Schedule view">
+          <button
+            type="button"
+            className={viewMode === "list" ? "active" : ""}
+            onClick={() => setViewMode("list")}
+          >
+            List View
+          </button>
+          <button
+            type="button"
+            className={viewMode === "calendar" ? "active" : ""}
+            onClick={() => setViewMode("calendar")}
+          >
+            Calendar View
+          </button>
+        </div>
       </section>
 
       <section className="ds-date-toolbar">
@@ -371,6 +486,134 @@ export default function DailyScheduleProfessional() {
         </div>
       )}
 
+      {viewMode === "calendar" && (
+        <section className="ds-calendar-panel">
+          <div className="ds-calendar-heading">
+            <div>
+              <span className="ds-eyebrow">MONTHLY VIEW</span>
+              <h3>{formatCalendarMonth()}</h3>
+            </div>
+
+            <div className="ds-calendar-actions">
+              <button
+                type="button"
+                aria-label="Previous month"
+                onClick={() => changeCalendarMonth(-1)}
+              >
+                <ArrowLeft size={17} />
+              </button>
+              <button
+                type="button"
+                aria-label="Next month"
+                onClick={() => changeCalendarMonth(1)}
+              >
+                <ArrowRight size={17} />
+              </button>
+            </div>
+          </div>
+
+          {calendarLoading ? (
+            <div className="ds-empty">Loading calendar schedule...</div>
+          ) : (
+            <>
+              <div className="ds-calendar-grid">
+                {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
+                  (day) => (
+                    <div className="ds-calendar-weekday" key={day}>
+                      {day}
+                    </div>
+                  )
+                )}
+
+                {calendarGrid.map((date, index) => {
+                  if (!date) {
+                    return (
+                      <div
+                        className="ds-calendar-cell ds-calendar-empty"
+                        key={`empty-${index}`}
+                      />
+                    );
+                  }
+
+                  const doses = calendarMap.get(date) || [];
+                  const dayNumber = Number(date.slice(-2));
+                  const statusCounts = doses.reduce(
+                    (counts, dose) => {
+                      const status = normalizeStatus(dose.status);
+                      counts[status]++;
+                      return counts;
+                    },
+                    { given: 0, skipped: 0, pending: 0 }
+                  );
+
+                  return (
+                    <button
+                      type="button"
+                      className={`ds-calendar-cell ${
+                        date === selectedDate ? "selected" : ""
+                      }`}
+                      key={date}
+                      onClick={() => setSelectedDate(date)}
+                    >
+                      <strong>{dayNumber}</strong>
+                      {doses.length > 0 && (
+                        <span className="ds-calendar-statuses">
+                          {statusCounts.given > 0 && (
+                            <i className="given" title="Given">
+                              {statusCounts.given}
+                            </i>
+                          )}
+                          {statusCounts.skipped > 0 && (
+                            <i className="skipped" title="Skipped">
+                              {statusCounts.skipped}
+                            </i>
+                          )}
+                          {statusCounts.pending > 0 && (
+                            <i className="pending" title="Pending">
+                              {statusCounts.pending}
+                            </i>
+                          )}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="ds-calendar-selected">
+                <div className="ds-calendar-selected-heading">
+                  <h3>{formatDate(selectedDate)}</h3>
+                  <span>{selectedCalendarDoses.length} doses</span>
+                </div>
+
+                {selectedCalendarDoses.length === 0 ? (
+                  <p>No medication scheduled for this date.</p>
+                ) : (
+                  <div className="ds-calendar-dose-list">
+                    {selectedCalendarDoses.slice(0, 8).map((dose) => (
+                      <div
+                        className="ds-calendar-dose"
+                        key={`${dose.medicineId}-${dose.time}`}
+                      >
+                        <span>
+                          {dose.medicineName} · {dose.time}
+                        </span>
+                        <strong
+                          className={`ds-status ds-status-${normalizeStatus(dose.status)}`}
+                        >
+                          {normalizeStatus(dose.status)}
+                        </strong>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </section>
+      )}
+
+      {viewMode === "list" && (
       <section className="ds-timeline-panel">
         <div className="ds-panel-heading">
           <div>
@@ -500,6 +743,7 @@ export default function DailyScheduleProfessional() {
           </div>
         )}
       </section>
+      )}
 
       {skipDose && (
         <div
