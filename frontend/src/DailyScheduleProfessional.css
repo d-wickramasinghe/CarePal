@@ -1,0 +1,670 @@
+
+/* CAREPAL DAILY SCHEDULE */
+
+.ds-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.ds-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+  min-height: 210px;
+  padding: 28px 36px;
+  border-radius: 19px;
+  background: linear-gradient(110deg, #e0f7ef, #effbf8);
+  overflow: hidden;
+}
+
+.ds-hero > div {
+  max-width: 630px;
+}
+
+.ds-eyebrow {
+  color: #0c9b89;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.ds-hero h2 {
+  color: #174b4d;
+  font-size: clamp(23px, 2.5vw, 31px);
+  margin: 12px 0;
+  line-height: 1.3;
+}
+
+.ds-hero p {
+  color: #6d968d;
+  font-size: 13px;
+  line-height: 1.8;
+  margin-bottom: 20px;
+}
+
+.ds-hero img {
+  width: 190px;
+  height: 175px;
+  object-fit: contain;
+}
+
+.ds-hero-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 13px;
+  border-radius: 9px;
+  background: #ffffffb8;
+  color: #278b7c;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* DATE TOOLBAR */
+
+.ds-date-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 23px;
+  border: 1px solid #e7eef1;
+  border-radius: 15px;
+  background: white;
+}
+
+.ds-date-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ds-date-icon {
+  width: 45px;
+  height: 45px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #e5f8f0;
+  color: #0d9b88;
+}
+
+.ds-date-heading h3 {
+  color: #214854;
+  font-size: 15px;
+  margin: 0 0 5px;
+}
+
+.ds-date-heading p {
+  color: #96aab2;
+  font-size: 11px;
+  margin: 0;
+}
+
+.ds-date-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ds-date-actions input {
+  height: 40px;
+  border: 1px solid #e3eaee;
+  border-radius: 9px;
+  padding: 0 10px;
+  color: #466875;
+  background: white;
+  font-family: inherit;
+  font-size: 12px;
+}
+
+.ds-icon-button,
+.ds-today-button,
+.ds-refresh-button {
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 13px;
+  border: 1px solid #e4ecef;
+  border-radius: 9px;
+  background: white;
+  color: #557581;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.ds-icon-button {
+  width: 40px;
+  padding: 0;
+}
+
+.ds-today-button {
+  background: #e7f8f1;
+  color: #0d927d;
+  border-color: #e7f8f1;
+  font-weight: 800;
+}
+
+.ds-refresh-button:disabled {
+  opacity: 0.5;
+}
+
+/* SUMMARY */
+
+.ds-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 17px;
+}
+
+.ds-summary-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: white;
+  border: 1px solid #e7eef1;
+  border-radius: 15px;
+  padding: 21px;
+}
+
+.ds-summary-icon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+}
+
+.ds-teal .ds-summary-icon {
+  background: #e4f8f1;
+  color: #119b87;
+}
+
+.ds-green .ds-summary-icon {
+  background: #e6f8ed;
+  color: #22a674;
+}
+
+.ds-orange .ds-summary-icon {
+  background: #fff1e1;
+  color: #e2a04b;
+}
+
+.ds-red .ds-summary-icon {
+  background: #ffebeb;
+  color: #df7272;
+}
+
+.ds-summary-card span:not(.ds-summary-icon) {
+  display: block;
+  color: #8ea3ac;
+  font-size: 11px;
+}
+
+.ds-summary-card strong {
+  display: block;
+  color: #214854;
+  font-size: 27px;
+  margin-top: 5px;
+}
+
+/* ALERTS */
+
+.ds-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.ds-alert-error {
+  background: #fff0ed;
+  color: #bd5555;
+}
+
+.ds-alert-success {
+  background: #e8f9ef;
+  color: #14885f;
+}
+
+/* TIMELINE PANEL */
+
+.ds-timeline-panel {
+  background: white;
+  border: 1px solid #e7eef1;
+  border-radius: 17px;
+  padding: 27px;
+}
+
+.ds-panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.ds-panel-heading h3 {
+  color: #204853;
+  font-size: 19px;
+  margin: 9px 0 6px;
+}
+
+.ds-panel-heading p {
+  color: #97aab2;
+  font-size: 12px;
+  margin: 0;
+}
+
+.ds-dose-count {
+  background: #e7f8f1;
+  color: #0d957e;
+  border-radius: 20px;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+/* TIMELINE */
+
+.ds-timeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.ds-timeline-item {
+  display: grid;
+  grid-template-columns: 85px minmax(0, 1fr);
+  gap: 18px;
+}
+
+.ds-time-column {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+}
+
+.ds-time-column::after {
+  content: "";
+  position: absolute;
+  top: 45px;
+  bottom: -10px;
+  left: 50%;
+  width: 2px;
+  background: #e1eee9;
+  transform: translateX(-50%);
+}
+
+.ds-timeline-item:last-child .ds-time-column::after {
+  display: none;
+}
+
+.ds-time-column strong {
+  color: #456775;
+  font-size: 13px;
+  margin: 4px 0 12px;
+}
+
+.ds-timeline-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 4px solid white;
+  box-shadow: 0 0 0 2px #c7ded7;
+  z-index: 1;
+}
+
+.ds-dot-given {
+  background: #1aae82;
+  box-shadow: 0 0 0 2px #1aae82;
+}
+
+.ds-dot-pending {
+  background: #e5a34c;
+  box-shadow: 0 0 0 2px #e5a34c;
+}
+
+.ds-dot-skipped {
+  background: #e37d7d;
+  box-shadow: 0 0 0 2px #e37d7d;
+}
+
+/* DOSE CARD */
+
+.ds-dose-card {
+  border: 1px solid #e6eef0;
+  border-radius: 14px;
+  padding: 19px;
+  margin-bottom: 19px;
+  background: #fcfefe;
+}
+
+.ds-dose-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ds-pill-icon {
+  width: 47px;
+  height: 47px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #e5f8f1;
+  color: #0f9c87;
+}
+
+.ds-dose-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.ds-dose-details h4 {
+  color: #214a56;
+  font-size: 14px;
+  margin: 0 0 6px;
+}
+
+.ds-dose-details p {
+  color: #94a7af;
+  font-size: 11px;
+  margin: 0;
+}
+
+.ds-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 20px;
+  padding: 7px 11px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.ds-status-given {
+  background: #e1f8ea;
+  color: #168a60;
+}
+
+.ds-status-pending {
+  background: #fff2df;
+  color: #b87e29;
+}
+
+.ds-status-skipped {
+  background: #ffeded;
+  color: #ca5d5d;
+}
+
+.ds-skip-reason {
+  margin-top: 14px;
+  padding: 11px 13px;
+  background: #fff7ed;
+  border-radius: 8px;
+  color: #aa7b42;
+  font-size: 11px;
+}
+
+.ds-dose-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 17px;
+  padding-top: 15px;
+  border-top: 1px solid #edf2f3;
+}
+
+.ds-dose-footer > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #9aadb4;
+  font-size: 11px;
+}
+
+.ds-dose-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.ds-given-button,
+.ds-skip-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-radius: 9px;
+  padding: 10px 13px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ds-given-button {
+  border: 1px solid #0f9b87;
+  background: #0f9b87;
+  color: white;
+}
+
+.ds-skip-button {
+  border: 1px solid #f4d9d9;
+  background: #fff7f7;
+  color: #c86a6a;
+}
+
+.ds-given-button:disabled,
+.ds-skip-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ds-empty {
+  text-align: center;
+  padding: 45px 15px;
+  color: #9aadb4;
+  font-size: 12px;
+}
+
+.ds-empty svg {
+  color: #75c4ae;
+}
+
+.ds-empty h3 {
+  color: #325c64;
+}
+
+/* SKIP MODAL */
+
+.ds-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: #112f3db3;
+}
+
+.ds-modal {
+  width: min(500px, 100%);
+  background: white;
+  border-radius: 17px;
+  padding: 27px;
+  box-shadow: 0 25px 70px #0e2d3d38;
+}
+
+.ds-modal-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.ds-modal-header h2 {
+  color: #204954;
+  font-size: 21px;
+  margin: 9px 0;
+}
+
+.ds-modal-header p {
+  color: #94a8b1;
+  font-size: 12px;
+}
+
+.ds-modal-header button {
+  width: 35px;
+  height: 35px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #e8eef1;
+  background: white;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.ds-modal form label {
+  display: block;
+  color: #3d616b;
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.ds-modal textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 110px;
+  padding: 13px;
+  border: 1px solid #dfe9ec;
+  border-radius: 10px;
+  outline: none;
+  font-family: inherit;
+  font-size: 12px;
+}
+
+.ds-modal textarea:focus {
+  border-color: #0f9b87;
+}
+
+.ds-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.ds-cancel-button,
+.ds-confirm-button {
+  padding: 11px 16px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ds-cancel-button {
+  border: 1px solid #e3ebee;
+  background: white;
+  color: #607e89;
+}
+
+.ds-confirm-button {
+  border: 0;
+  background: #d77676;
+  color: white;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1150px) {
+  .ds-date-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ds-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .ds-hero {
+    padding: 24px;
+  }
+
+  .ds-hero img {
+    display: none;
+  }
+
+  .ds-summary-grid {
+    gap: 10px;
+  }
+
+  .ds-summary-card {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .ds-summary-icon {
+    width: 39px;
+    height: 39px;
+  }
+
+  .ds-summary-card strong {
+    font-size: 22px;
+  }
+
+  .ds-timeline-panel {
+    padding: 17px;
+  }
+
+  .ds-timeline-item {
+    grid-template-columns: 50px minmax(0, 1fr);
+    gap: 9px;
+  }
+
+  .ds-time-column strong {
+    font-size: 11px;
+  }
+
+  .ds-dose-card {
+    padding: 13px;
+  }
+
+  .ds-dose-main {
+    flex-wrap: wrap;
+  }
+
+  .ds-status {
+    margin-left: auto;
+  }
+
+  .ds-dose-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ds-dose-actions {
+    flex-wrap: wrap;
+  }
+
+  .ds-date-actions {
+    justify-content: center;
+  }
+}
