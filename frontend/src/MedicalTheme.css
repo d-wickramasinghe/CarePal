@@ -104,6 +104,17 @@
   font-size: 20px;
 }
 
+.medical-nav-badge {
+  margin-left: auto;
+  padding: 4px 7px;
+  border-radius: 10px;
+  background: #fff0df;
+  color: #bd7a30;
+  font-size: 8px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
 .medical-sidebar-bottom {
   margin-top: auto;
 }

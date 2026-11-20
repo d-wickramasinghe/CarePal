@@ -397,6 +397,46 @@
   flex-direction: column;
 }
 
+.fp-prescription-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.fp-prescription-list a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #e1ebe8;
+  border-radius: 10px;
+  background: #fbfdfd;
+  color: #5d7f7c;
+  text-decoration: none;
+}
+
+.fp-prescription-list a > span {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fp-prescription-list strong {
+  color: #365f66;
+  font-size: 12px;
+}
+
+.fp-prescription-list small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #91a5a3;
+  font-size: 10px;
+}
+
 .fp-record {
   display: flex;
   align-items: center;

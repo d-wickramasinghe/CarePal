@@ -7,6 +7,7 @@ const caregiverMenu = [
   { id: "schedule", icon: "▤", label: "Daily Schedule" },
   { id: "family", icon: "▥", label: "Adherence Reports" },
   { id: "stock", icon: "◫", label: "Stock Management" },
+  { id: "handover", icon: "⇄", label: "Handover Notes", badge: "New" },
 ];
 
 const familyMenu = [
@@ -56,6 +57,9 @@ export default function Sidebar({
               {item.icon}
             </span>
             <span>{item.label}</span>
+            {item.badge && (
+              <span className="medical-nav-badge">{item.badge}</span>
+            )}
           </button>
         ))}
       </nav>

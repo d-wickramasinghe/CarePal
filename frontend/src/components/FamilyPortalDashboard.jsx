@@ -5,6 +5,7 @@ import {
   CalendarDays,
   CheckCircle2,
   Clock3,
+  Eye,
   HeartHandshake,
   Package,
   Pill,
@@ -184,6 +185,38 @@ export default function FamilyPortalDashboard({ onNavigate }) {
           tone="purple"
         />
       </div>
+
+      {medicines.some((medicine) => medicine.prescription?.filename) && (
+        <section className="fp-panel">
+          <div className="fp-panel-heading">
+            <div>
+              <h3>Prescription Attachments</h3>
+              <p>Read-only prescription images</p>
+            </div>
+            <Eye size={20} />
+          </div>
+
+          <div className="fp-prescription-list">
+            {medicines
+              .filter((medicine) => medicine.prescription?.filename)
+              .map((medicine) => (
+                <a
+                  key={medicine._id}
+                  href={`http://localhost:5000/api/medicines/${medicine._id}/prescription`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Pill size={17} />
+                  <span>
+                    <strong>{medicine.name}</strong>
+                    <small>{medicine.prescription.filename}</small>
+                  </span>
+                  <Eye size={16} />
+                </a>
+              ))}
+          </div>
+        </section>
+      )}
 
       <div className="fp-two-columns">
         <section className="fp-panel">

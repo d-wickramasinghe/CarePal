@@ -14,6 +14,8 @@ import {
   X,
   Pencil,
   Trash2,
+  Eye,
+  FileImage,
 } from "lucide-react";
 
 import AddMedicine from "./AddMedicine";
@@ -33,7 +35,7 @@ function getStockStatus(medicine) {
   return daysRemaining <= threshold ? "low" : "healthy";
 }
 
-function MedicineCard({ medicine, onEdit, onDelete }) {
+function MedicineCard({ medicine, onEdit, onDelete, onViewPrescription }) {
   const stockStatus = getStockStatus(medicine);
 
   const statusText = {
@@ -103,6 +105,25 @@ function MedicineCard({ medicine, onEdit, onDelete }) {
         </div>
       </div>
 
+      {medicine.prescription?.filename && (
+        <div className="mm-prescription-card">
+          <span>
+            <FileImage size={16} />
+            <span>
+              <small>Prescription attached</small>
+              <strong>{medicine.prescription.filename}</strong>
+            </span>
+          </span>
+          <button
+            type="button"
+            onClick={() => onViewPrescription(medicine)}
+          >
+            <Eye size={14} />
+            View
+          </button>
+        </div>
+      )}
+
       <div className="mm-card-footer">
         <span className="mm-card-actions">
           <button type="button" className="mm-edit-button" onClick={() => onEdit(medicine)}>
@@ -131,6 +152,8 @@ export default function MedicineManagement({
   const [deletingMedicine, setDeletingMedicine] = useState(null);
   const [actionError, setActionError] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [prescriptionMedicine, setPrescriptionMedicine] =
+    useState(null);
 
   const stats = useMemo(() => {
     const lowStock = medicines.filter(
@@ -343,6 +366,7 @@ export default function MedicineManagement({
                   setActionError("");
                   setDeletingMedicine(selected);
                 }}
+                onViewPrescription={setPrescriptionMedicine}
               />
             ))}
           </div>
@@ -397,6 +421,42 @@ export default function MedicineManagement({
                 onAdded={handleAdded}
               />
             </div>
+          </section>
+        </div>
+      )}
+
+      {prescriptionMedicine && (
+        <div
+          className="mm-modal-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setPrescriptionMedicine(null);
+            }
+          }}
+        >
+          <section
+            className="mm-prescription-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Prescription preview"
+          >
+            <div className="mm-prescription-modal-header">
+              <div>
+                <span className="mm-eyebrow">PRESCRIPTION</span>
+                <h2>{prescriptionMedicine.name}</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPrescriptionMedicine(null)}
+                aria-label="Close prescription"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <img
+              src={`http://localhost:5000/api/medicines/${prescriptionMedicine._id}/prescription`}
+              alt={`Prescription for ${prescriptionMedicine.name}`}
+            />
           </section>
         </div>
       )}

@@ -16,6 +16,7 @@ import MedicineManagement from "./components/MedicineManagement";
 import DailyScheduleProfessional from "./components/DailyScheduleProfessional";
 import AdherenceReportsProfessional from "./components/AdherenceReportsProfessional";
 import StockManagementProfessional from "./components/StockManagementProfessional";
+import HandoverNotes from "./components/HandoverNotes";
 
 import FamilySchedule from "./components/FamilySchedule";
 import FamilyStock from "./components/FamilyStock";
@@ -52,6 +53,10 @@ const pageDetails = {
   stock: {
     title: "Stock Management",
     subtitle: "Monitor medication availability",
+  },
+  handover: {
+    title: "Handover Notes",
+    subtitle: "Shift communication and care updates",
   },
 };
 
@@ -466,6 +471,9 @@ export default function App() {
   ) : (
     <FamilyStockProfessional />
   ))}
+            {activePage === "handover" && isCaregiver && (
+              <HandoverNotes />
+            )}
           </div>
         </main>
       </div>

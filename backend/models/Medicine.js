@@ -47,6 +47,28 @@ const medicineSchema = new mongoose.Schema(
       default: 5,
       min: 1,
     },
+    prescription: {
+      data: {
+        type: Buffer,
+        select: false,
+      },
+      filename: {
+        type: String,
+        default: "",
+      },
+      contentType: {
+        type: String,
+        default: "",
+      },
+      size: {
+        type: Number,
+        default: 0,
+      },
+      uploadedAt: {
+        type: Date,
+        default: null,
+      },
+    },
   },
   { timestamps: true }
 );

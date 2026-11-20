@@ -9,6 +9,7 @@ const medicineRoutes = require("./routes/medicineRoutes");
 const scheduleRoutes = require("./routes/scheduleRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const stockRoutes = require("./routes/stockRoutes");
+const handoverRoutes = require("./routes/handoverRoutes");
 
 const {
   startReminderScheduler,
@@ -30,6 +31,29 @@ app.use("/api/medicines", medicineRoutes);
 app.use("/api/schedule", scheduleRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/stock", stockRoutes);
+app.use("/api/handover-notes", handoverRoutes);
+
+app.use((error, req, res, next) => {
+  if (error?.name === "MulterError") {
+    if (error.code === "LIMIT_FILE_SIZE") {
+      return res.status(400).json({
+        message: "Prescription image must be 5MB or smaller",
+      });
+    }
+
+    return res.status(400).json({
+      message: "Invalid prescription upload",
+    });
+  }
+
+  if (error) {
+    return res.status(400).json({
+      message: error.message || "Request failed",
+    });
+  }
+
+  next();
+});
 
 const PORT = process.env.PORT || 5000;
 

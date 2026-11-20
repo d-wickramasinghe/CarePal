@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { Image, Upload, X } from "lucide-react";
 
 function AddMedicine({ medicine, onAdded }) {
   const [form, setForm] = useState(() => medicine ? {
@@ -25,24 +26,81 @@ function AddMedicine({ medicine, onAdded }) {
   });
 
   const [message, setMessage] = useState("");
+  const [prescription, setPrescription] = useState(null);
+  const [removePrescription, setRemovePrescription] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState("");
 
   const update = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
+
+  function selectPrescription(event) {
+    const file = event.target.files?.[0];
+    setMessage("");
+
+    if (!file) return;
+
+    const allowed = ["image/jpeg", "image/png", "image/webp"];
+
+    if (!allowed.includes(file.type)) {
+      setMessage("Prescription must be JPG, PNG, or WEBP.");
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage("Prescription image must be 5MB or smaller.");
+      event.target.value = "";
+      return;
+    }
+
+    setPrescription(file);
+    setRemovePrescription(false);
+
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(URL.createObjectURL(file));
+  }
+
+  function removeSelectedPrescription() {
+    setPrescription(null);
+
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl("");
+    }
+
+    setRemovePrescription(true);
+  }
 
   const submit = async (e) => {
     e.preventDefault();
     setMessage("");
 
     try {
+      const formData = new FormData();
+
+      Object.entries(form).forEach(([key, value]) => {
+        formData.append(
+          key,
+          key === "times" ? JSON.stringify(value) : String(value)
+        );
+      });
+
+      if (prescription) {
+        formData.append("prescription", prescription);
+      }
+
+      if (removePrescription) {
+        formData.append("removePrescription", "true");
+      }
+
       const response = await fetch(
         medicine
           ? `http://localhost:5000/api/medicines/${medicine._id}`
           : "http://localhost:5000/api/medicines",
         {
           method: medicine ? "PUT" : "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
+          body: formData,
         }
       );
 
@@ -124,6 +182,42 @@ function AddMedicine({ medicine, onAdded }) {
       <input type="number" min="1" required
         value={form.lowStockDays}
         onChange={(e) => update("lowStockDays", Number(e.target.value))} />
+
+      <label>Prescription Photo</label>
+      <div className="mm-prescription-upload">
+        <input
+          id="prescription-upload"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={selectPrescription}
+        />
+
+        {previewUrl ? (
+          <div className="mm-prescription-preview">
+            <img src={previewUrl} alt="Prescription preview" />
+            <button type="button" onClick={removeSelectedPrescription}>
+              <X size={14} /> Remove
+            </button>
+          </div>
+        ) : medicine?.prescription?.filename && !removePrescription ? (
+          <div className="mm-prescription-existing">
+            <Image size={18} />
+            <span>{medicine.prescription.filename}</span>
+            <button type="button" onClick={removeSelectedPrescription}>
+              <X size={14} /> Remove
+            </button>
+          </div>
+        ) : (
+          <label
+            className="mm-prescription-choose"
+            htmlFor="prescription-upload"
+          >
+            <Upload size={18} />
+            <span>Choose Image</span>
+            <small>JPG, PNG, WEBP · Maximum 5MB</small>
+          </label>
+        )}
+      </div>
 
       <button type="submit" className="save-btn">
         {medicine ? "Update Medicine" : "Save Medicine"}
